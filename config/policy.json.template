@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "sensitivePaths": [
+    "~/.ssh",
+    "~/.aws",
+    "~/.config",
+    "/etc",
+    "/System",
+    "/Library/Keychains"
+  ],
+  "blockedCommands": [
+    "rm -rf /",
+    "mkfs",
+    "dd if=/dev/zero",
+    ":(){:|:&};:"
+  ],
+  "dangerousPatterns": [
+    "sudo rm",
+    "chmod 777",
+    "| sh",
+    "| bash",
+    "> /dev/"
+  ],
+  "requireApproval": {
+    "fileDelete": true,
+    "fileWriteSensitive": true,
+    "bashDangerous": true,
+    "networkExternal": true
+  },
+  "autoAllowPatterns": [
+    "git status",
+    "git diff",
+    "git log",
+    "ls ",
+    "cat ",
+    "grep ",
+    "find ",
+    "pwd",
+    "which "
+  ],
+  "allowedNetworkDestinations": [
+    "localhost:11434",
+    "127.0.0.1:11434",
+    "::1:11434"
+  ],
+  "monitorOllamaRequests": true
+}
