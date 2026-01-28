@@ -1,8 +1,8 @@
 # Swift
 .DS_Store
-/.build
+.build/
 /Packages
-/*.xcodeproj
+*.xcodeproj
 xcuserdata/
 DerivedData/
 .swiftpm/
