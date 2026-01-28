@@ -12,6 +12,10 @@ let package = Package(
         .executable(
             name: "aifw-daemon",
             targets: ["aifw-daemon"]
+        ),
+        .executable(
+            name: "test-prompt",
+            targets: ["test-prompt"]
         )
     ],
     targets: [
@@ -27,6 +31,13 @@ let package = Package(
             name: "aifw-daemon",
             dependencies: ["AIFW"],
             path: "Sources/aifw-daemon"
+        ),
+
+        // Test prompt utility
+        .executableTarget(
+            name: "test-prompt",
+            dependencies: ["AIFW"],
+            path: "Sources/test-prompt"
         ),
 
         // Test target

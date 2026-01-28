@@ -7,18 +7,44 @@ import Foundation
 import AIFW
 
 print("AIFW Daemon v0.1.0")
-print("Phase 3: Process Tracker\n")
+print("Phase 4: User Prompt System\n")
 
-let currentPID = getpid()
-let tracker = ProcessTracker(rootPID: currentPID)
+// Test with mock (no user interaction needed)
+print("Testing with Mock Prompts:\n")
 
-print("Process Tracking:")
-print("   Root PID: \(currentPID)")
-print("   Tracked PIDs: \(tracker.trackedPIDs.count)")
-print("   Is current PID tracked? \(tracker.isTracked(currentPID))")
+let mockPrompt = MockUserPrompt(defaultResponse: .allowOnce)
 
-if let path = tracker.getProcessPath(currentPID) {
-    print("   Current process path: \(path)")
+let response1 = mockPrompt.showPrompt(
+    title: "AI Firewall",
+    message: "Write to sensitive file?",
+    details: "Path: ~/.ssh/config"
+)
+print("1. Mock response (Allow Once): \(response1)")
+
+mockPrompt.responseToReturn = .deny
+let response2 = mockPrompt.showPrompt(
+    title: "AI Firewall",
+    message: "Execute dangerous command?",
+    details: "Command: sudo rm important_file"
+)
+print("2. Mock response (Deny): \(response2)")
+
+mockPrompt.responseToReturn = .allowAlways
+let response3 = mockPrompt.showPrompt(
+    title: "AI Firewall",
+    message: "Connect to external API?",
+    details: "Destination: api.openai.com:443"
+)
+print("3. Mock response (Allow Always): \(response3)")
+
+// Show mock statistics
+print("\nMock Prompt Statistics:")
+print("   Total prompts: \(mockPrompt.promptCount)")
+print("   Was prompted: \(mockPrompt.wasPrompted)")
+if let last = mockPrompt.lastPrompt {
+    print("   Last prompt title: \(last.title)")
 }
 
-print("\nProcessTracker working correctly")
+print("\nUserPrompt system working correctly")
+print("\nTo test real macOS dialogs:")
+print("   Run: swift run test-prompt")
