@@ -7,71 +7,72 @@ import Foundation
 import AIFW
 
 print("AIFW Daemon v0.1.0")
-print("Phase 5: Event Handlers\n")
+print("Phase 6: Firewall Monitor (Endpoint Security)\n")
 
-// Create all components
+// Check for root
+guard getuid() == 0 else {
+    print("Error: This daemon requires root privileges")
+    print("   Run with: sudo \(CommandLine.arguments[0]) <target-pid>")
+    exit(1)
+}
+
+// Check for target PID argument
+guard CommandLine.arguments.count > 1,
+      let targetPID = Int32(CommandLine.arguments[1]) else {
+    print("Error: Usage: sudo \(CommandLine.arguments[0]) <target-pid>")
+    print("\nExample:")
+    print("  # Start target process")
+    print("  opencode &")
+    print("  TARGET_PID=$!")
+    print("  ")
+    print("  # Start firewall")
+    print("  sudo \(CommandLine.arguments[0]) $TARGET_PID")
+    exit(1)
+}
+
+print("Target PID: \(targetPID)")
+
+// Initialize components
 let policy = FirewallPolicy.defaultPolicy()
 let policyEngine = PolicyEngine(policy: policy)
 
-let tempDir = FileManager.default.temporaryDirectory
-let dbPath = tempDir.appendingPathComponent("aifw-demo.db").path
+let dbPath = NSHomeDirectory() + "/.config/aifw/activity.db"
 let logger = ActivityLogger(dbPath: dbPath)
 
-let tracker = ProcessTracker(rootPID: getpid())
-let prompt = MockUserPrompt(defaultResponse: .allowOnce)
+let tracker = ProcessTracker(rootPID: targetPID)
+print("Tracking \(tracker.trackedPIDs.count) process(es)")
 
-// Create event handler
-let handler = EventHandler(
+let prompt = UserPrompt() // Real prompts!
+
+let eventHandler = EventHandler(
     policyEngine: policyEngine,
     activityLogger: logger,
     processTracker: tracker,
     userPrompt: prompt
 )
 
-print("Testing Event Handler Integration:\n")
-
-// Test 1: File write
-print("1. File Write Event:")
-let fileEvent = FileOperationEvent(
-    pid: getpid(),
-    ppid: getppid(),
-    processPath: "/usr/bin/opencode",
-    filePath: "/tmp/test.txt",
-    isWrite: true,
-    isDelete: false
+// Create and start monitor
+let monitor = FirewallMonitor(
+    eventHandler: eventHandler,
+    processTracker: tracker
 )
-let decision1 = handler.handleFileOperation(fileEvent)
-print("   Decision: \(decision1)")
 
-// Test 2: Command execution
-print("\n2. Command Execution Event:")
-let execEvent = ProcessExecutionEvent(
-    pid: getpid(),
-    ppid: getppid(),
-    executablePath: "/bin/bash",
-    command: "git status"
-)
-let decision2 = handler.handleProcessExecution(execEvent)
-print("   Decision: \(decision2)")
+do {
+    try monitor.start()
 
-// Test 3: Network connection
-print("\n3. Network Connection Event:")
-let netEvent = NetworkConnectionEvent(
-    pid: getpid(),
-    ppid: getppid(),
-    processPath: "/usr/bin/opencode",
-    destination: "127.0.0.1",
-    port: 11434
-)
-let decision3 = handler.handleNetworkConnection(netEvent)
-print("   Decision: \(decision3)")
+    print("\nAIFW is now monitoring PID \(targetPID)")
+    print("Press Ctrl+C to stop\n")
 
-// Show statistics
-print("\nActivity Statistics:")
-let stats = logger.getStatistics()
-print("   Total events: \(stats.total)")
-print("   Allowed: \(stats.allowed)")
-print("   Denied: \(stats.denied)")
+    // Set up signal handler
+    signal(SIGINT) { _ in
+        print("\n\nStopping AIFW...")
+        exit(0)
+    }
 
-print("\nEventHandler successfully integrating all components")
-print("\nNext: Phase 6 will add Endpoint Security framework integration")
+    // Run loop
+    RunLoop.main.run()
+
+} catch {
+    print("Error: Failed to start monitor: \(error.localizedDescription)")
+    exit(1)
+}

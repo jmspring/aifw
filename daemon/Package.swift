@@ -23,7 +23,11 @@ let package = Package(
         .target(
             name: "AIFW",
             dependencies: [],
-            path: "Sources/AIFW"
+            path: "Sources/AIFW",
+            linkerSettings: [
+                .linkedLibrary("EndpointSecurity"),
+                .linkedLibrary("bsm")
+            ]
         ),
 
         // Executable target - daemon entry point
