@@ -7,44 +7,71 @@ import Foundation
 import AIFW
 
 print("AIFW Daemon v0.1.0")
-print("Phase 4: User Prompt System\n")
+print("Phase 5: Event Handlers\n")
 
-// Test with mock (no user interaction needed)
-print("Testing with Mock Prompts:\n")
+// Create all components
+let policy = FirewallPolicy.defaultPolicy()
+let policyEngine = PolicyEngine(policy: policy)
 
-let mockPrompt = MockUserPrompt(defaultResponse: .allowOnce)
+let tempDir = FileManager.default.temporaryDirectory
+let dbPath = tempDir.appendingPathComponent("aifw-demo.db").path
+let logger = ActivityLogger(dbPath: dbPath)
 
-let response1 = mockPrompt.showPrompt(
-    title: "AI Firewall",
-    message: "Write to sensitive file?",
-    details: "Path: ~/.ssh/config"
+let tracker = ProcessTracker(rootPID: getpid())
+let prompt = MockUserPrompt(defaultResponse: .allowOnce)
+
+// Create event handler
+let handler = EventHandler(
+    policyEngine: policyEngine,
+    activityLogger: logger,
+    processTracker: tracker,
+    userPrompt: prompt
 )
-print("1. Mock response (Allow Once): \(response1)")
 
-mockPrompt.responseToReturn = .deny
-let response2 = mockPrompt.showPrompt(
-    title: "AI Firewall",
-    message: "Execute dangerous command?",
-    details: "Command: sudo rm important_file"
+print("Testing Event Handler Integration:\n")
+
+// Test 1: File write
+print("1. File Write Event:")
+let fileEvent = FileOperationEvent(
+    pid: getpid(),
+    ppid: getppid(),
+    processPath: "/usr/bin/opencode",
+    filePath: "/tmp/test.txt",
+    isWrite: true,
+    isDelete: false
 )
-print("2. Mock response (Deny): \(response2)")
+let decision1 = handler.handleFileOperation(fileEvent)
+print("   Decision: \(decision1)")
 
-mockPrompt.responseToReturn = .allowAlways
-let response3 = mockPrompt.showPrompt(
-    title: "AI Firewall",
-    message: "Connect to external API?",
-    details: "Destination: api.openai.com:443"
+// Test 2: Command execution
+print("\n2. Command Execution Event:")
+let execEvent = ProcessExecutionEvent(
+    pid: getpid(),
+    ppid: getppid(),
+    executablePath: "/bin/bash",
+    command: "git status"
 )
-print("3. Mock response (Allow Always): \(response3)")
+let decision2 = handler.handleProcessExecution(execEvent)
+print("   Decision: \(decision2)")
 
-// Show mock statistics
-print("\nMock Prompt Statistics:")
-print("   Total prompts: \(mockPrompt.promptCount)")
-print("   Was prompted: \(mockPrompt.wasPrompted)")
-if let last = mockPrompt.lastPrompt {
-    print("   Last prompt title: \(last.title)")
-}
+// Test 3: Network connection
+print("\n3. Network Connection Event:")
+let netEvent = NetworkConnectionEvent(
+    pid: getpid(),
+    ppid: getppid(),
+    processPath: "/usr/bin/opencode",
+    destination: "127.0.0.1",
+    port: 11434
+)
+let decision3 = handler.handleNetworkConnection(netEvent)
+print("   Decision: \(decision3)")
 
-print("\nUserPrompt system working correctly")
-print("\nTo test real macOS dialogs:")
-print("   Run: swift run test-prompt")
+// Show statistics
+print("\nActivity Statistics:")
+let stats = logger.getStatistics()
+print("   Total events: \(stats.total)")
+print("   Allowed: \(stats.allowed)")
+print("   Denied: \(stats.denied)")
+
+print("\nEventHandler successfully integrating all components")
+print("\nNext: Phase 6 will add Endpoint Security framework integration")
