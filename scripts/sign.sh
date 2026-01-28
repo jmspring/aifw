@@ -6,14 +6,15 @@ echo "Code Signing AIFW Daemon"
 echo "========================"
 
 # Configuration
-BINARY=".build/release/aifw-daemon"
+ARCH=$(uname -m)
+BINARY="daemon/.build/${ARCH}-apple-macosx/release/aifw-daemon"
 ENTITLEMENTS="daemon/AIFWDaemon.entitlements"
 IDENTITY="Developer ID Application"
 
 # Check if binary exists
 if [ ! -f "$BINARY" ]; then
     echo "Binary not found: $BINARY"
-    echo "   Run: swift build -c release"
+    echo "   Run: cd daemon && swift build -c release"
     exit 1
 fi
 
@@ -45,5 +46,5 @@ echo ""
 echo "Code signing complete!"
 echo ""
 echo "Next steps:"
-echo "  1. Run with sudo: sudo $BINARY <target-pid>"
+echo "  1. Run with sudo: sudo \"$BINARY\" <target-pid>"
 echo "  2. Grant Full Disk Access in System Settings if needed"
