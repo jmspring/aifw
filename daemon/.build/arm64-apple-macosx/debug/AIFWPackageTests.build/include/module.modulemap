@@ -1,0 +1,3 @@
+module AIFWPackageTests {
+    header "/Users/jims/code/fw/daemon/.build/arm64-apple-macosx/debug/AIFWPackageTests.build/include/AIFWPackageTests-Swift.h"
+}

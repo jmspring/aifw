@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/Users/jims/code/fw/daemon/.build/arm64-apple-macosx/debug/AIFWTests.build/master.swiftdeps"
+  },
+  "/Users/jims/code/fw/daemon/Tests/AIFWTests/AIFWTests.swift": {
+    "dependencies": "/Users/jims/code/fw/daemon/.build/arm64-apple-macosx/debug/AIFWTests.build/AIFWTests.d",
+    "object": "/Users/jims/code/fw/daemon/.build/arm64-apple-macosx/debug/AIFWTests.build/AIFWTests.swift.o",
+    "swiftmodule": "/Users/jims/code/fw/daemon/.build/arm64-apple-macosx/debug/AIFWTests.build/AIFWTests~partial.swiftmodule",
+    "swift-dependencies": "/Users/jims/code/fw/daemon/.build/arm64-apple-macosx/debug/AIFWTests.build/AIFWTests.swiftdeps",
+    "diagnostics": "/Users/jims/code/fw/daemon/.build/arm64-apple-macosx/debug/AIFWTests.build/AIFWTests.dia"
+  }
+}

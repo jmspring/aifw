@@ -1,0 +1,41 @@
+# Swift
+.DS_Store
+/.build
+/Packages
+/*.xcodeproj
+xcuserdata/
+DerivedData/
+.swiftpm/
+*.xcworkspace
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+*.log
+daemon.log
+
+# Build products
+*.app
+*.dSYM.zip
+*.dSYM
+
+# macOS
+.AppleDouble
+.LSOverride
+
+# Configuration
+config/policy.json.local
+config/*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Test artifacts
+/tmp/
+/test-output/
